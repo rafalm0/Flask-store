@@ -16,12 +16,14 @@ class Store(MethodView):
 
     @blp.response(200, StoreSchema)
     def get(self, store_id):
-        item = StoreModel.query.get_or_404(store_id)
-        raise NotImplementedError("Later")
+        store = StoreModel.query.get_or_404(store_id)
+        raise store
 
     def delete(self, store_id):
-        item = StoreModel.query.get_or_404(store_id)
-        raise NotImplementedError("Later")
+        store = StoreModel.query.get_or_404(store_id)
+        db.session.delete(store)
+        db.session.commit()
+        return {"message": "store deleted"}
 
 
 @blp.route("/store")

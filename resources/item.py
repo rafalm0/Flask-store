@@ -20,9 +20,10 @@ class Item(MethodView):
         return item
 
     def delete(self, item_id):
-        # ItemModel.query.delete()
         item = ItemModel.query.get_or_404(item_id)
-        raise NotImplementedError("Later")
+        db.session.delete(item)
+        db.session.commit()
+        return {"message": "Item deleted"}
 
     @blp.arguments(ItemUpdateSchema)  # this is passing data through marshmellow before the function
     @blp.response(200, ItemSchema)  # while this passes the output through marshmellow before sending to client
