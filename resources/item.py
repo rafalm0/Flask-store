@@ -11,6 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 blp = Blueprint("item", __name__, description="Operations on items")
 
 
+
 @blp.route("/item/<string:item_id>")
 class Item(MethodView):
 

@@ -17,7 +17,7 @@ class Store(MethodView):
     @blp.response(200, StoreSchema)
     def get(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
-        raise store
+        return store
 
     def delete(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
