@@ -19,14 +19,15 @@ class TagInStore(MethodView):
     @blp.arguments(TagSchema)
     @blp.response(201, TagSchema)
     def post(self, tag_data, store_id):
-        tag = TagModel(**tag_data,store_id=store_id)
+        tag = TagModel(store_id=store_id, **tag_data)
         try:
             db.session.add(tag)
             db.session.commit()
         except SQLAlchemyError as e:
-            abort(500, message=str(e))
+            abort(500, message=str(e) + str(tag_data) + str(store_id))
 
         return tag
+
 
 @blp.route("/tag/<string:tag_id>")
 class Store(MethodView):
