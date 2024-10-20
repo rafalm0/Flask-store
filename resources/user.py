@@ -5,6 +5,7 @@ from models import UserModel
 from passlib.hash import pbkdf2_sha256
 
 from db import db
+from flask_jwt_extended import create_access_token
 from sqlalchemy.exc import SQLAlchemyError
 
 blp = Blueprint("users", __name__, description="Operations on users")
@@ -29,8 +30,35 @@ class UserRegister(MethodView):
         return {"message": "User created"}, 201
 
 
+@blp.route("/login")
+class UserLogin(MethodView):
+
+    @blp.arguments(UserSchema)
+    def post(self, user_data):
+        user = UserModel.query.filter(UserModel == user_data['username']).first()
+        if not user:
+            abort(404, message="user not found")
+
+        if pbkdf2_sha256.verify(user_data['password'], user.password):
+            access_token = create_access_token(identity=user.id)
+            '''access_token structure:
+            {
+                "fresh":false, 
+                "iat":123,
+                "jti":cf2cd-eab-df4-dfdf,
+                "type":"access",
+                "sub":1,
+                "nbf":16599744953,
+                "exp":16599748883
+            }'''
+            return {"access_token": access_token}
+        else:
+            abort(401, message="Wrong password")
+
+
+
 @blp.route("/user/<int:user_id>")
-class Store(MethodView):
+class User(MethodView):
 
     @blp.response(200, UserSchema)
     def get(self, user_id):
