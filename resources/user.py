@@ -17,7 +17,6 @@ class UserRegister(MethodView):
     @blp.arguments(UserSchema)
     # @blp.response()
     def post(self, user_data):
-
         if UserModel.query.filter(UserModel.username == user_data['username']).first():
             abort(409, message='user with that username exists already')
 
@@ -58,7 +57,6 @@ class UserLogin(MethodView):
             abort(401, message="Wrong password")
 
 
-
 @blp.route("/user/<int:user_id>")
 class User(MethodView):
 
@@ -72,4 +70,3 @@ class User(MethodView):
         db.session.delete(user)
         db.session.commit()
         return {"message": "User deleted"}
-
