@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from db import db
 from models import ItemModel
 from schemas import ItemSchema, ItemUpdateSchema
+from flask_jwt_extended import jwt_required
 
 blp = Blueprint("Items", __name__, description="Operations on items")
 
@@ -41,6 +42,7 @@ class Item(MethodView):
 
 @blp.route("/item")
 class ItemList(MethodView):
+    @jwt_required()
     @blp.response(200, ItemSchema(many=True))
     def get(self):
         return ItemModel.query.all()

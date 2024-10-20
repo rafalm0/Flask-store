@@ -17,8 +17,9 @@ class UserRegister(MethodView):
     @blp.arguments(UserSchema)
     # @blp.response()
     def post(self, user_data):
-        if UserModel.query.filter(UserModel == user_data['username']).first():
-            abort(404, message='user with that username exists already')
+
+        if UserModel.query.filter(UserModel.username == user_data['username']).first():
+            abort(409, message='user with that username exists already')
 
         username = user_data['username']
         password = pbkdf2_sha256.hash(user_data['password'])
@@ -35,13 +36,14 @@ class UserLogin(MethodView):
 
     @blp.arguments(UserSchema)
     def post(self, user_data):
-        user = UserModel.query.filter(UserModel == user_data['username']).first()
+        user = UserModel.query.filter(UserModel.username == user_data['username']).first()
+
         if not user:
             abort(404, message="user not found")
 
         if pbkdf2_sha256.verify(user_data['password'], user.password):
             access_token = create_access_token(identity=user.id)
-            '''access_token structure:
+            '''access_token structure when decoded:
             {
                 "fresh":false, 
                 "iat":123,
