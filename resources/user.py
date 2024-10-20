@@ -6,7 +6,7 @@ from passlib.hash import pbkdf2_sha256
 
 from blocklist import BLOCKLIST
 from db import db
-from flask_jwt_extended import create_access_token, get_jwt,jwt_required
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required, create_refresh_token, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 
 blp = Blueprint("users", __name__, description="Operations on users")
@@ -42,7 +42,8 @@ class UserLogin(MethodView):
             abort(404, message="user not found")
 
         if pbkdf2_sha256.verify(user_data['password'], user.password):
-            access_token = create_access_token(identity=user.id)
+            access_token = create_access_token(identity=user.id, fresh=True)
+            refresh_token = create_refresh_token(identity=user.id)
             '''access_token structure when decoded:
             {
                 "fresh":false, 
@@ -53,9 +54,20 @@ class UserLogin(MethodView):
                 "nbf":16599744953,
                 "exp":16599748883
             }'''
-            return {"access_token": access_token}
+            return {"access_token": access_token, "refresh_token": refresh_token}
         else:
             abort(401, message="Wrong password")
+
+
+@blp.route("/refresh")
+class TokenRefresh(MethodView):
+
+    @jwt_required(refresh=True)
+    def post(self):
+        current_user = get_jwt_identity()
+        new_token = create_access_token(current_user, fresh=False)
+        return {"access_token": new_token}
+
 
 @blp.route("/logout")
 class UserLogout(MethodView):
@@ -67,7 +79,6 @@ class UserLogout(MethodView):
         return {"message": "Successfully logged out"}
 
 
-
 @blp.route("/user/<int:user_id>")
 class User(MethodView):
 
@@ -76,6 +87,7 @@ class User(MethodView):
         user = UserModel.query.get_or_404(user_id)
         return user
 
+    @jwt_required(fresh=True)
     def delete(self, user_id):
         jwt = get_jwt()
         if not jwt.get("is_admin"):

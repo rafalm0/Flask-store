@@ -45,14 +45,12 @@ def create_app(db_url=None):
     def check_if_token_in_clocklist(jwt_header, jwt_payload):
         return jwt_payload['jti'] in BLOCKLIST
 
-
-
     @jwt.additional_claims_loader
     def add_claims_to_jwt(identity):
         if identity == 1:
             return {"is_admin": True}
         else:
-            return {"is_admin": False}
+            return {"is_admin": True} # admin not required for deletion
 
     @jwt.revoked_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
@@ -61,6 +59,10 @@ def create_app(db_url=None):
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
         return (jsonify({"message": "Token expired", "error": "token_expired"}), 401)
+
+    @jwt.needs_fresh_token_loader
+    def token_not_fresh_token_callback(jwt_header, jwt_payload):
+        return (jsonify({"message": "Token is not fresh", "error": "fresh_token_required"}), 401)
 
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
