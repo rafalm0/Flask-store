@@ -4,8 +4,9 @@ from flask.views import MethodView
 from models import UserModel
 from passlib.hash import pbkdf2_sha256
 
+from blocklist import BLOCKLIST
 from db import db
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt,jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
 blp = Blueprint("users", __name__, description="Operations on users")
@@ -56,6 +57,16 @@ class UserLogin(MethodView):
         else:
             abort(401, message="Wrong password")
 
+@blp.route("/logout")
+class UserLogout(MethodView):
+
+    @jwt_required()
+    def post(self):
+        jti = get_jwt()['jti']
+        BLOCKLIST.add(jti)
+        return {"message": "Successfully logged out"}
+
+
 
 @blp.route("/user/<int:user_id>")
 class User(MethodView):
@@ -66,6 +77,9 @@ class User(MethodView):
         return user
 
     def delete(self, user_id):
+        jwt = get_jwt()
+        if not jwt.get("is_admin"):
+            abort(401, message="Admin privileges required for deletion.")
         user = UserModel.query.get_or_404(user_id)
         db.session.delete(user)
         db.session.commit()

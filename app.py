@@ -9,7 +9,7 @@ from db import db
 import models  # importing models imports the __init__ therefore imports all of them as a package
 # models need to be already imported before sqlchemy
 
-
+from blocklist import BLOCKLIST
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBlueprint
@@ -38,8 +38,25 @@ def create_app(db_url=None):
     # ---------------------------- app initialization -------------------
     api = Api(app)
 
-    # ---------------------------- jwt config -----------------------------------
+    # ---------------------------- jwt config and methods-----------------------------------
     jwt = JWTManager(app)
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_clocklist(jwt_header, jwt_payload):
+        return jwt_payload['jti'] in BLOCKLIST
+
+
+
+    @jwt.additional_claims_loader
+    def add_claims_to_jwt(identity):
+        if identity == 1:
+            return {"is_admin": True}
+        else:
+            return {"is_admin": False}
+
+    @jwt.revoked_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return (jsonify({"message": "Token revoked, user loged out", "error": "token_revoked"}), 401)
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
