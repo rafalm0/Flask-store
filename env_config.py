@@ -1,0 +1,1 @@
+database_url="postgresql://flask_store_db_user:xX9u3HafxSz9wA1rj2MZicDSoAzqIukN@dpg-csasec0gph6c73a5mtt0-a.oregon-postgres.render.com/flask_store_db"
