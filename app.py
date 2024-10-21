@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager
 import os
 from flask_migrate import Migrate
 from dotenv import dotenv_values,load_dotenv
-from env_config import database_url
+from env_config import DATABASE_URL,MAILGUN_DOMAIN,MAILGUN_API_KEY
 
 from db import db
 import models  # importing models imports the __init__ therefore imports all of them as a package
@@ -24,6 +24,7 @@ def create_app(db_url=None):
 
     load_dotenv(".env")
 
+
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Stores REST API"
     app.config["API_VERSION"] = "v1"
@@ -31,7 +32,10 @@ def create_app(db_url=None):
     app.config["OPENAPI_URL_PREFIX"] = "/"
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    if os.path.exists("env_config.py"):
+        app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = db_url or os.getenv("DATABASE_URL", "sqlite:///data.db")
     app.config['SQLALCHEMY_TACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = '261696634396203470738536034261566624783'
 

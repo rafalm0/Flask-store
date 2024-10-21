@@ -3,6 +3,8 @@ from schemas import UserSchema
 from flask.views import MethodView
 from models import UserModel
 from passlib.hash import pbkdf2_sha256
+from env_config import MAILGUN_DOMAIN, MAILGUN_API_KEY
+import requests
 
 from blocklist import BLOCKLIST
 from db import db
@@ -10,6 +12,16 @@ from flask_jwt_extended import create_access_token, get_jwt, jwt_required, creat
 from sqlalchemy.exc import SQLAlchemyError
 
 blp = Blueprint("users", __name__, description="Operations on users")
+
+
+def send_simple_message(to,subject,body):
+    return requests.post(
+        f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+        auth=("api", f"{MAILGUN_API_KEY}"),
+        data={"from": f"Mail User <mailgun@{MAILGUN_DOMAIN}>",
+              "to": [to],
+              "subject": subject,
+              "text": body})
 
 
 @blp.route("/register")

@@ -47,6 +47,7 @@ Make sure you have the following software installed:
 - [Docker](https://www.docker.com/get-started)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - (Optional) [Python 3.x](https://www.python.org/downloads/) for local development
+- .env file configuration or env_config.py file with databse_url,mail_gun key or any other personal configuration
 
 ### Installation
 
