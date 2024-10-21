@@ -33,6 +33,7 @@ def create_app(db_url=None):
     app.config['SQLALCHEMY_TACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = '261696634396203470738536034261566624783'
 
+    print(f"Deployment database on {app.config['SQLALCHEMY_DATABASE_URI']}")
     # ------------------------- populating db with tables ------------------------
     db.init_app(app)
     with app.app_context():  # creating all tables initially
