@@ -8,7 +8,7 @@ if os.path.exists("env_config.py"):
     import env_config
 from blocklist import BLOCKLIST
 from db import db
-from env_config import DATABASE_URL
+
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBlueprint
