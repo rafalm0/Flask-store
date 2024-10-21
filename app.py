@@ -5,6 +5,7 @@ from flask_smorest import abort, Api
 from flask_jwt_extended import JWTManager
 import os
 from flask_migrate import Migrate
+from dotenv import load_dotenv
 
 from db import db
 import models  # importing models imports the __init__ therefore imports all of them as a package
@@ -19,6 +20,7 @@ from resources.user import blp as UserBlueprint
 
 def create_app(db_url=None):
     app = Flask(__name__)
+    load_dotenv()
 
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Stores REST API"
