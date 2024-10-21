@@ -42,7 +42,7 @@ class Item(MethodView):
 
 @blp.route("/item")
 class ItemList(MethodView):
-    @jwt_required()
+    # @jwt_required()
     @blp.response(200, ItemSchema(many=True))
     def get(self):
         return ItemModel.query.all()
