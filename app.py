@@ -1,22 +1,21 @@
-import secrets
-import uuid
-from flask import Flask, request, jsonify
-from flask_smorest import abort, Api
+from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
-import os
 from flask_migrate import Migrate
-from dotenv import dotenv_values,load_dotenv
-from env_config import DATABASE_URL,MAILGUN_DOMAIN,MAILGUN_API_KEY
-
-from db import db
-import models  # importing models imports the __init__ therefore imports all of them as a package
-# models need to be already imported before sqlchemy
-
+from flask_smorest import Api
+from dotenv import load_dotenv
+import os
+if os.path.exists("env_config.py"):
+    import env_config
 from blocklist import BLOCKLIST
+from db import db
+from env_config import DATABASE_URL
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBlueprint
 from resources.user import blp as UserBlueprint
+
+
+# models need to be already imported before sqlchemy
 
 
 def create_app(db_url=None):
@@ -33,7 +32,7 @@ def create_app(db_url=None):
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
     if os.path.exists("env_config.py"):
-        app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+        app.config['SQLALCHEMY_DATABASE_URI'] = env_config.DATABASE_URL
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = db_url or os.getenv("DATABASE_URL", "sqlite:///data.db")
     app.config['SQLALCHEMY_TACK_MODIFICATIONS'] = False
