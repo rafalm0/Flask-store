@@ -1,7 +1,8 @@
 from flask_smorest import Blueprint, abort
-from schemas import UserSchema
+from schemas import UserSchema, UserRegisterSchema
 from flask.views import MethodView
 from models import UserModel
+from sqlalchemy import or_
 from passlib.hash import pbkdf2_sha256
 from env_config import MAILGUN_DOMAIN, MAILGUN_API_KEY
 import requests
@@ -14,7 +15,7 @@ from sqlalchemy.exc import SQLAlchemyError
 blp = Blueprint("users", __name__, description="Operations on users")
 
 
-def send_simple_message(to,subject,body):
+def send_simple_message(to, subject, body):
     return requests.post(
         f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
         auth=("api", f"{MAILGUN_API_KEY}"),
@@ -27,18 +28,21 @@ def send_simple_message(to,subject,body):
 @blp.route("/register")
 class UserRegister(MethodView):
 
-    @blp.arguments(UserSchema)
+    @blp.arguments(UserRegisterSchema)
     # @blp.response()
     def post(self, user_data):
-        if UserModel.query.filter(UserModel.username == user_data['username']).first():
-            abort(409, message='user with that username exists already')
+        if UserModel.query.filter(or_(UserModel.username == user_data['username'],
+                                      UserModel.email == user_data['email'])).first():
+            abort(409, message='User with that username or email exists already')
 
-        username = user_data['username']
-        password = pbkdf2_sha256.hash(user_data['password'])
-        user = UserModel(username=username, password=password)
+        user = UserModel(username=user_data['username'],
+                         password=pbkdf2_sha256.hash(user_data['password']),
+                         email=user_data['email'])
 
         db.session.add(user)
         db.session.commit()
+
+        send_simple_message(to=user.email, subject="Signup", body=f"Successfully signed up. {user.username}")
 
         return {"message": "User created"}, 201
 
