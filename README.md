@@ -14,8 +14,6 @@ This skeleton can be used for any type of project desired to be deployed.
 - [Deployment](#deployment)
   - [Deploying on Render.com](#deploying-on-rendercom)
 - [API Endpoints](#api-endpoints)
-- [Usage](#usage)
-- [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
