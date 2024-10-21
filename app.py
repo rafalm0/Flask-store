@@ -20,7 +20,7 @@ from resources.user import blp as UserBlueprint
 
 def create_app(db_url=None):
     app = Flask(__name__)
-    load_dotenv()
+    load_dotenv(".env")
     env_config = dotenv_values()
 
     app.config["PROPAGATE_EXCEPTIONS"] = True
@@ -37,7 +37,7 @@ def create_app(db_url=None):
     app.config['SQLALCHEMY_TACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = '261696634396203470738536034261566624783'
 
-    print(f"Deployment database on {app.config['SQLALCHEMY_DATABASE_URI']},env config: {env_config}")
+    print(f"Deployment database on {app.config['SQLALCHEMY_DATABASE_URI']},env config: {env_config['DATABASE_URL']}")
     # ------------------------- populating db with tables ------------------------
     db.init_app(app)
     with app.app_context():  # creating all tables initially
