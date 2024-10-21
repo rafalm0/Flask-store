@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from flask_smorest import abort, Api
 from flask_jwt_extended import JWTManager
 import os
+from flask_migrate import Migrate
 
 from db import db
 import models  # importing models imports the __init__ therefore imports all of them as a package
@@ -34,6 +35,11 @@ def create_app(db_url=None):
     db.init_app(app)
     with app.app_context():  # creating all tables initially
         db.create_all()
+
+
+    # --------------------------------- flask migrate ---------------------
+
+    migrate = Migrate(app,db)
 
     # ---------------------------- app initialization -------------------
     api = Api(app)
