@@ -12,3 +12,5 @@ passlib
 flask-migrate
 psycopg2
 requests
+rq
+redis

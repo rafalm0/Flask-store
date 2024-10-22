@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from flask_smorest import Api
 from dotenv import load_dotenv
 import os
+import redis
+from rq import Queue
 if os.path.exists("env_config.py"):
     import env_config
 from blocklist import BLOCKLIST
@@ -22,8 +24,16 @@ def create_app(db_url=None):
     app = Flask(__name__)
 
     load_dotenv(".env")
+    # --------------------------------- redis connection ---------------------
+    if os.path.exists("env_config.py"):
+        redis_connection = redis.from_url(env_config.REDIS_URL)
+    else:
+        redis_connection = redis.from_url(os.getenv("REDIS_URL"))
 
+    # --------------------------------- app config ---------------------
 
+    app.queue = Queue("emails", connection=redis_connection)
+    app.config['USING_REDIS_QUEUE'] = False
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Stores REST API"
     app.config["API_VERSION"] = "v1"
@@ -44,10 +54,9 @@ def create_app(db_url=None):
     with app.app_context():  # creating all tables initially
         db.create_all()
 
-
     # --------------------------------- flask migrate ---------------------
 
-    migrate = Migrate(app,db)
+    migrate = Migrate(app, db)
 
     # ---------------------------- app initialization -------------------
     api = Api(app)
@@ -64,7 +73,7 @@ def create_app(db_url=None):
         if identity == 1:
             return {"is_admin": True}
         else:
-            return {"is_admin": True} # admin not required for deletion
+            return {"is_admin": True}  # admin not required for deletion
 
     @jwt.revoked_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
