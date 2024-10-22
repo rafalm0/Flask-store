@@ -37,5 +37,5 @@ def send_user_registration_email(email, username):
     return send_simple_message(to=email,
                                subject="Signup",
                                body=f"Successfully signed up. {username}",
-                               html=render_template("email/action.html",username=username)
+                               html=render_template("emails/action.html", username=username)
                                )

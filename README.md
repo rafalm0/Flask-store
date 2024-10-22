@@ -100,6 +100,11 @@ You can also host a PostgreSQL database on Render:
 1. Create a new database in Render.
 2. Update your application's .env to connect to this database with its URL.
 
+For background worker:
+1. Enable its usage in app.py
+2. Create a background worker on render.com
+3. on docker command use : /bin/bash -c cd /app && rq worker -c settings
+
 ## API Endpoints
 
 
