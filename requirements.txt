@@ -2,8 +2,8 @@ flask
 flask-smorest
 python-dotenv
 service
-docutils~=0.21.2
-marshmallow~=3.22.0
+docutils
+marshmallow
 sqlalchemy
 flask-sqlalchemy
 gunicorn
